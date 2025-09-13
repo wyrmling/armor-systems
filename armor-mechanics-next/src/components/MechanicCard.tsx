@@ -120,4 +120,20 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {mechanic.inputs.map(renderInput)}
           </div>
-      
+          
+          <Button onClick={handleCalculate} className="w-full">
+            🔬 Рассчитать / Симулировать
+          </Button>
+        </div>
+      )}
+
+      {result && (
+        <div className="bg-background border border-border rounded-lg p-4">
+          <pre className="text-sm text-text-primary whitespace-pre-wrap font-mono">
+            {result}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
