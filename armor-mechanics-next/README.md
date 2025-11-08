@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Прототип механик брони - Next.js 15 + Tailwind CSS 4
 
-## Getting Started
+Интерактивное приложение для тестирования различных систем брони и урона в играх.
 
-First, run the development server:
+## Технологии
 
-```bash
+- **Next.js 15** - React фреймворк с App Router
+- **Tailwind CSS 4** - Utility-first CSS фреймворк
+- **TypeScript** - Строгая типизация
+- **React 19** - Последняя версия React
+
+## Функциональность
+
+### Механики брони
+- **AC/Defense** - Система избежания/уклонения (D&D стиль)
+- **Flat DR** - Плоское поглощение урона
+- **Percent DR** - Процентное снижение урона
+- **Diminishing Returns** - Убывающая эффективность брони
+- **DT + DR** - Комбинированная система порога и снижения
+- **Soak Dice** - Система оппонирующих бросков
+
+### Возможности
+- 🎯 Интерактивные калькуляторы для каждой механики
+- ⚖️ Сравнение нескольких механик одновременно
+- 📱 Адаптивный дизайн
+- 🌙 Темная тема
+- 🔬 Monte Carlo симуляции для вероятностных механик
+
+## Запуск проекта
+
+\`\`\`bash
+# Установка зависимостей
+npm install
+
+# Запуск в режиме разработки
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# Сборка для продакшена
+npm run build
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Запуск продакшен версии
+npm start
+\`\`\`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Приложение будет доступно по адресу [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+## Структура проекта
 
-To learn more about Next.js, take a look at the following resources:
+\`\`\`
+src/
+├── app/              # App Router страницы
+├── components/       # React компоненты
+│   ├── ui/          # Базовые UI компоненты
+│   ├── Header.tsx
+│   ├── TabNavigation.tsx
+│   ├── MechanicCard.tsx
+│   └── ComparePanel.tsx
+├── data/            # Данные механик
+├── types/           # TypeScript типы
+└── globals.css      # Глобальные стили
+\`\`\`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Особенности реализации
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Модульная архитектура** - каждая механика описана отдельно
+- **Типобезопасность** - полная типизация TypeScript
+- **Responsive UI** - адаптивный интерфейс для всех устройств
+- **Компонентный подход** - переиспользуемые UI компоненты
+- **CSS Variables** - темизация через CSS переменные
 
-## Deploy on Vercel
+## Основано на
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Этот прототип основан на анализе механик из файла `ARMOR_MECHANICS.md` и демонстрирует принципы работы различных систем защиты в играх.

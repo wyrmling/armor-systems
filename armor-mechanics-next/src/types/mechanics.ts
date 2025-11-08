@@ -12,7 +12,7 @@ export interface Mechanic {
   name: string;
   desc: string;
   inputs: MechanicInput[];
-  compute: (values: Record<string, any>) => string | { text: string; hist?: any[] };
+  compute: (values: Record<string, any>) => string | { text: string; hist?: Array<{ label: string; count: number }> };
 }
 
 export interface AnalysisData {
@@ -21,6 +21,13 @@ export interface AnalysisData {
   effectiveness: number;
   efficiency: number;
   survivability: number;
+}
+
+export interface OptimalArmorResult {
+  optimal: number;
+  maxEfficiency: number;
+  diminishingPoint: number;
+  data: AnalysisData[];
 }
 
 export interface VariabilityStats {
@@ -35,4 +42,11 @@ export interface VariabilityStats {
   iqr: number;
   cv: number;
   results: number[];
+}
+
+export interface ChartSeries {
+  label: string;
+  xs: number[];
+  ys: number[];
+  color?: string;
 }

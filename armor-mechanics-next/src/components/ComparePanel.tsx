@@ -1,24 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { mechanics } from '@/data/mechanics';
-import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { ChartCanvas } from '@/components/ChartCanvas';
+import { createComparisonData } from '@/utils/analytics';
+import type { ChartSeries } from '@/types/mechanics';
 
 export function ComparePanel() {
-  const [selectedMechanics, setSelectedMechanics] = useState<string[]>([]);
+  const [selectedMechanics, setSelectedMechanics] = useState<string[]>(['flatdr', 'percentdr', 'diminish']);
   const [commonParams, setCommonParams] = useState({
     damage: 30,
     armor: 10,
     drp: 25,
     dt: 5,
-    k: 100
+    k: 100,
+    baseAC: 10,
+    attackBonus: 10
   });
   const [results, setResults] = useState<Array<{key: string, name: string, result: string}>>([]);
+  const [chartSeries, setChartSeries] = useState<ChartSeries[]>([]);
 
   const handleMechanicToggle = (key: string) => {
-    setSelectedMechanics(prev => 
-      prev.includes(key) 
+    setSelectedMechanics(prev =>
+      prev.includes(key)
         ? prev.filter(k => k !== key)
         : [...prev, key]
     );
@@ -26,16 +31,15 @@ export function ComparePanel() {
 
   const handleCompare = () => {
     const newResults: Array<{key: string, name: string, result: string}> = [];
-    
+
     selectedMechanics.forEach(key => {
       const mechanic = mechanics.find(m => m.key === key);
       if (!mechanic) return;
-      
+
       let result = '';
       try {
-        // Адаптируем общие параметры для каждой механики
         let params: any = {};
-        
+
         switch (key) {
           case 'flatdr':
             params = { damage: commonParams.damage, dr: commonParams.armor, min1: false };
@@ -58,7 +62,7 @@ export function ComparePanel() {
           default:
             result = '(нет адаптера для этой механики)';
         }
-        
+
         if (result === '') {
           const res = mechanic.compute(params);
           result = typeof res === 'string' ? res : res.text || '';
@@ -66,14 +70,22 @@ export function ComparePanel() {
       } catch (e) {
         result = `Ошибка: ${e instanceof Error ? e.message : 'Неизвестная ошибка'}`;
       }
-      
+
       newResults.push({ key, name: mechanic.name, result });
     });
-    
+
     setResults(newResults);
+
+    // Update chart data
+    const series = createComparisonData(selectedMechanics, commonParams, [0, commonParams.armor * 2]);
+    setChartSeries(series);
   };
 
-  const comparableMechanics = mechanics.filter(m => m.key !== 'compare');
+  useEffect(() => {
+    handleCompare();
+  }, [selectedMechanics, commonParams]);
+
+  const comparableMechanics = mechanics.filter(m => m.key !== 'compare' && ['flatdr', 'percentdr', 'diminish', 'dt_dr', 'ac', 'shield'].includes(m.key));
 
   return (
     <div className="space-y-6">
@@ -112,6 +124,18 @@ export function ComparePanel() {
             value={commonParams.k}
             onChange={(e) => setCommonParams(prev => ({ ...prev, k: parseFloat(e.target.value) || 0 }))}
           />
+          <Input
+            label="Базовый AC"
+            type="number"
+            value={commonParams.baseAC}
+            onChange={(e) => setCommonParams(prev => ({ ...prev, baseAC: parseFloat(e.target.value) || 0 }))}
+          />
+          <Input
+            label="Бонус атаки"
+            type="number"
+            value={commonParams.attackBonus}
+            onChange={(e) => setCommonParams(prev => ({ ...prev, attackBonus: parseFloat(e.target.value) || 0 }))}
+          />
         </div>
       </div>
 
@@ -130,19 +154,10 @@ export function ComparePanel() {
               />
               <div>
                 <div className="text-sm font-medium text-text-primary">{mechanic.name}</div>
-                <div className="text-xs text-text-secondary">{mechanic.desc}</div>
               </div>
             </label>
           ))}
         </div>
-        
-        <Button 
-          onClick={handleCompare} 
-          disabled={selectedMechanics.length === 0}
-          className="w-full"
-        >
-          ⚖️ Сравнить выбранные механики
-        </Button>
       </div>
 
       {results.length > 0 && (
@@ -150,7 +165,7 @@ export function ComparePanel() {
           <h3 className="text-lg font-semibold text-text-accent mb-4">
             Результаты сравнения
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {results.map(({ key, name, result }) => (
               <div key={key} className="bg-background border border-border rounded-lg p-4">
                 <h4 className="font-medium text-text-primary mb-2">{name}</h4>
@@ -160,6 +175,23 @@ export function ComparePanel() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {chartSeries.length > 0 && (
+        <div className="bg-surface border border-border rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-text-accent mb-4">
+            График: Урон vs Броня
+          </h3>
+          <ChartCanvas
+            type="multiline"
+            series={chartSeries}
+            height={300}
+            options={{
+              xLabel: 'Броня',
+              yLabel: 'Оставшийся урон'
+            }}
+          />
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Mechanic } from '@/types/mechanics';
+import type { Mechanic } from '@/types/mechanics';
 
 interface TabNavigationProps {
   mechanics: Mechanic[];
@@ -18,8 +18,8 @@ export function TabNavigation({ mechanics, activeTab, onTabChange }: TabNavigati
             onClick={() => onTabChange(index)}
             className={`
               w-full text-left px-3 py-2.5 rounded-lg transition-colors duration-200
-              ${activeTab === index 
-                ? 'bg-border text-text-primary' 
+              ${activeTab === index
+                ? 'bg-green-600 text-white'
                 : 'text-text-secondary hover:bg-border/50 hover:text-text-primary'
               }
             `}

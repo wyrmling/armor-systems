@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Mechanic, MechanicInput } from '@/types/mechanics';
+import { useState, useEffect } from 'react';
+import type { Mechanic, MechanicInput } from '@/types/mechanics';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ComparePanel } from '@/components/ComparePanel';
+import { HistogramCanvas } from '@/components/HistogramCanvas';
+import { AdvancedAnalysis } from '@/components/AdvancedAnalysis';
 
 interface MechanicCardProps {
   mechanic: Mechanic;
@@ -18,8 +20,19 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
     });
     return initialValues;
   });
-  
+
   const [result, setResult] = useState<string>('');
+  const [histogram, setHistogram] = useState<Array<{ label: string; count: number }>>([]);
+
+  useEffect(() => {
+    const initialValues: Record<string, any> = {};
+    mechanic.inputs.forEach(input => {
+      initialValues[input.key] = input.value;
+    });
+    setValues(initialValues);
+    setResult('');
+    setHistogram([]);
+  }, [mechanic]);
 
   const handleInputChange = (key: string, value: any) => {
     setValues(prev => ({ ...prev, [key]: value }));
@@ -30,11 +43,14 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
       const res = mechanic.compute(values);
       if (typeof res === 'string') {
         setResult(res);
+        setHistogram([]);
       } else {
         setResult(res.text || '');
+        setHistogram(res.hist || []);
       }
     } catch (error) {
       setResult(`Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+      setHistogram([]);
     }
   };
 
@@ -62,7 +78,7 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
             {input.label}
           </label>
           <select
-            value={values[input.key] || input.value}
+            value={values[input.key] ?? input.value}
             onChange={(e) => handleInputChange(input.key, e.target.value)}
             className="w-full px-3 py-2 bg-background border border-border rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-text-accent/50"
           >
@@ -81,7 +97,7 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
         key={input.key}
         label={input.label}
         type="number"
-        value={values[input.key] || input.value}
+        value={values[input.key] ?? input.value}
         onChange={(e) => handleInputChange(input.key, parseFloat(e.target.value) || 0)}
       />
     );
@@ -120,7 +136,7 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {mechanic.inputs.map(renderInput)}
           </div>
-          
+
           <Button onClick={handleCalculate} className="w-full">
             🔬 Рассчитать / Симулировать
           </Button>
@@ -134,6 +150,12 @@ export function MechanicCard({ mechanic }: MechanicCardProps) {
           </pre>
         </div>
       )}
+
+      {histogram.length > 0 && (
+        <HistogramCanvas data={histogram} />
+      )}
+
+      <AdvancedAnalysis mechanic={mechanic} />
     </div>
   );
 }
